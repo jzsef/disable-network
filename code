@@ -3,7 +3,7 @@ sudo nano /etc/systemd/system/all-ethernet-off.service
 ###########################################################################
 
 
-[[Unit]
+[Unit]
 Description=Disable all Ethernet interfaces at boot
 After=network-online.target
 

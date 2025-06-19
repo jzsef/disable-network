@@ -1,0 +1,81 @@
+sudo nano /etc/systemd/system/all-ethernet-off.service
+
+###########################################################################
+
+
+[Unit]
+Description=Disable all Ethernet interfaces at boot
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c '/usr/bin/nmcli device | grep ethernet | awk "{print \$1}" | xargs -r -n1 nmcli device disconnect'
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+
+###########################################################################
+
+
+sudo systemctl enable all-ethernet-off.service
+
+
+###########################################################################
+
+
+
+sudo nano /etc/systemd/system/wifi-off.service
+
+###########################################################################
+
+[Unit]
+Description=Disable Wi-Fi at boot
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/nmcli radio wifi off
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+
+
+###########################################################################
+
+
+sudo systemctl enable wifi-off.service
+
+
+###########################################################################
+
+
+
+
+sudo nano /etc/polkit-1/rules.d/10-network-manager.rules
+
+###########################################################################
+
+
+polkit.addRule(function(action, subject) {
+    if (
+        action.id == "org.freedesktop.NetworkManager.enable-disable-network" ||
+        action.id == "org.freedesktop.NetworkManager.enable-disable-wifi" ||
+        action.id == "org.freedesktop.NetworkManager.enable-disable-wwan" ||
+        action.id == "org.freedesktop.NetworkManager.settings.modify.system"
+    ) {
+        return subject.isInGroup("sudo") ? polkit.Result.YES : polkit.Result.NO;
+    }
+});
+
+
+
+###########################################################################
+
+sudo systemctl restart polkit
+sudo systemctl restart NetworkManager
+
+
+
+

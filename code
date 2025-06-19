@@ -134,6 +134,33 @@ sudo systemctl enable disable-autoconnect.service
 sudo systemctl start disable-autoconnect.service
 
 
+###########################################################################
+
+sudo nano /etc/systemd/system/disable-eth3738.service
+###########################################################################
+
+[Unit]
+Description=Disable eth3738 Ethernet port at boot
+After=NetworkManager.service
+Requires=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/nmcli device disconnect eth3738
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+
+
+###########################################################################
+
+
+sudo systemctl daemon-reload
+sudo systemctl enable disable-eth3738.service
+sudo systemctl start disable-eth3738.service
+
+
 
 
 

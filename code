@@ -4,16 +4,22 @@ sudo nano /etc/systemd/system/all-ethernet-off.service
 
 
 [Unit]
-Description=Disable all Ethernet interfaces at boot
-After=network-online.target
+Description=Disconnect all Ethernet interfaces at boot
+After=NetworkManager.service
+Requires=NetworkManager.service
 
 [Service]
 Type=oneshot
-ExecStart=/bin/bash -c "/usr/bin/nmcli device | awk '$2 == \"ethernet\" && $3 != \"unavailable\" {print \$1}' | xargs -r -n1 nmcli device disconnect"
+ExecStart=/bin/bash -c "
+  for dev in $(nmcli -t -f DEVICE,TYPE device | grep ':ethernet' | cut -d: -f1); do
+    nmcli device disconnect \"$dev\"
+  done
+"
 RemainAfterExit=true
 
 [Install]
 WantedBy=multi-user.target
+
 
 ###########################################################################
 

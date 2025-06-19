@@ -83,5 +83,57 @@ sudo systemctl restart polkit
 sudo systemctl restart NetworkManager
 
 
+###########################################################################
+
+
+
+
+sudo nano /usr/local/bin/disable-autoconnect.sh
+
+###########################################################################
+
+#!/bin/bash
+for conn in $(nmcli -t -f NAME connection show); do
+  nmcli connection modify "$conn" connection.autoconnect no
+done
+
+
+###########################################################################
+
+
+sudo chmod +x /usr/local/bin/disable-autoconnect.sh
+
+
+
+###########################################################################
+
+
+sudo nano /etc/systemd/system/disable-autoconnect.service
+
+###########################################################################
+
+
+
+[Unit]
+Description=Disable NetworkManager autoconnect on all connections
+After=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/disable-autoconnect.sh
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+
+###########################################################################
+
+
+sudo systemctl daemon-reload
+sudo systemctl enable disable-autoconnect.service
+sudo systemctl start disable-autoconnect.service
+
+
+
 
 
